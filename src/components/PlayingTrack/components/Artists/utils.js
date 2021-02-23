@@ -1,0 +1,1 @@
+export const getArtists = artists => artists.map(({ name }) => name );
