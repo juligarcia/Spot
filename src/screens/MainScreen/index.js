@@ -10,7 +10,7 @@ const MainScreen = ({ isSignedIn }) => {
 };
 
 const mapStateToProps = (store) => ({
-  isSignedIn: store.auth.isSignedIn,
+  isSignedIn: store?.auth?.isSignedIn,
 });
 
 MainScreen.propTypes = {

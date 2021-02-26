@@ -1,31 +1,34 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableWithoutFeedback, Pressable } from 'react-native';
+import { View, ScrollView, TouchableWithoutFeedback, Pressable } from 'react-native';
 import Modal from 'react-native-modal';
+import { func, string, bool } from 'prop-types';
+import { connect } from 'react-redux';
 
 import ProfilePic from '../../../../../ProfilePic';
-import SpotifyApi from '../../../../../../utils/SpotifyApi';
 import { scaleSize } from '../../../../../../utils/dimensions';
 import Label from '../../../../../Label';
 
-import { getTopTracksInfo } from './utils';
+import { getArtistTopTracks, addTrackToQueue } from './utils';
+import createStyles from './styles';
 
-const ArtistInfo = ({ artistId, setSelectedId }) => {
+const ArtistInfo = ({ artistId, setSelectedId, dispatch, setQueueLoading, topTracksLoading }) => {
+  const { styles, colors } = createStyles();
   const [topTracks, setTopTracks] = useState([]);
+  const [selectedForQueue, setSelectedForQueue] = useState();
 
   const onClose = () => {
     setSelectedId('');
   };
 
   useEffect(() => {
-    if (artistId)
-      SpotifyApi.getArtistTopTracks(artistId, 'AR').then((result) => setTopTracks(getTopTracksInfo(result)));
+    if (artistId) getArtistTopTracks(dispatch, setTopTracks, artistId);
   }, [artistId]);
 
   return (
     <Modal
-      isVisible={!!artistId}
+      isVisible={!!artistId && !topTracksLoading}
       backdropColor="black"
-      backdropOpacity={0.3}
+      backdropOpacity={0.7}
       onBackdropPress={onClose}
       animationInTiming={500}
       animationOutTiming={500}
@@ -38,19 +41,22 @@ const ArtistInfo = ({ artistId, setSelectedId }) => {
     >
       <View style={styles.container}>
         <View style={styles.dragBar} />
-        <TouchableWithoutFeedback style={{ borderWidth: 1 }}>
+        <TouchableWithoutFeedback>
           <View style={styles.innerContainer}>
             <ScrollView showsVerticalScrollIndicator={false}>
-              {topTracks.map(({ trackPic, name, uri }) => (
-                <Pressable
-                  onPress={() => {
-                    SpotifyApi.addToQueue(uri);
-                  }}>
+              {topTracks.map(({ trackPic, name, uri }, index) => (
+                <Pressable key={index} onPress={addTrackToQueue(dispatch, uri, setSelectedForQueue)}>
                   <View style={styles.track}>
-                    <ProfilePic url={trackPic} size={70} />
-                    <View style={styles.trackInfo}>
-                      <Label textStyles={styles.songName}>{name}</Label>
-                    </View>
+                    <ProfilePic
+                      url={trackPic}
+                      size={70}
+                      loading={selectedForQueue === uri && setQueueLoading}
+                    />
+                    {!(selectedForQueue === uri && setQueueLoading) && (
+                      <View style={styles.trackInfo}>
+                        <Label textStyles={styles.songName}>{name}</Label>
+                      </View>
+                    )}
                   </View>
                 </Pressable>
               ))}
@@ -62,44 +68,17 @@ const ArtistInfo = ({ artistId, setSelectedId }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  songName: {
-    textAlign: 'center',
-    fontSize: 16,
-  },
-  dragBar: {
-    width: '70%',
-    height: scaleSize(1, true),
-    borderRadius: 100,
-    backgroundColor: '#4B4B4B',
-    marginBottom: scaleSize(2, true),
-  },
-  container: {
-    backgroundColor: '#2E2E2E',
-    height: scaleSize(80, true),
-    borderRadius: 10,
-    paddingTop: '5%',
-    paddingBottom: '5%',
-    alignItems: 'center',
-    width: '100%',
-  },
-  trackInfo: {
-    flex: 1,
-    alignItems: 'center',
-    margin: scaleSize(2),
-  },
-  track: {
-    alignItems: 'center',
-    width: '100%',
-    backgroundColor: '#3B3B3B',
-    borderRadius: 5,
-    marginBottom: scaleSize(2),
-    padding: scaleSize(2),
-    flexDirection: 'row',
-  },
-  innerContainer: {
-    width: '90%',
-  },
+ArtistInfo.propTypes = {
+  artistId: string,
+  setSelectedId: func,
+  dispatch: func,
+  setQueueLoading: bool,
+  topTracksLoading: bool,
+};
+
+const mapStateToProps = (store) => ({
+  setQueueLoading: store?.user?.setQueueLoading,
+  topTracksLoading: store?.user?.topTracksLoading
 });
 
-export default ArtistInfo;
+export default connect(mapStateToProps)(ArtistInfo);

@@ -5,7 +5,7 @@ class AuthenticationHandler {
     this.spotifyAuthConfig = {
       clientId: 'd20272027f2f40f38748633967f94b86',
       clientSecret: '958504facf64446685f2b8e71aad72b0',
-      redirectUrl: 'com.spot://oauthredirect',
+      redirectUrl: 'com.spot:/oauthredirect',
       scopes: [
         'playlist-read-private',
         'playlist-modify-public',
@@ -24,22 +24,21 @@ class AuthenticationHandler {
     };
   }
 
-  async onLogin(callback) {
+  async onLogin(successCallBack, failureCallback) {
     try {
       const result = await authorize(this.spotifyAuthConfig);
-      callback({ ...result, isSignedIn: true });
+      successCallBack({ ...result, isSignedIn: true });
     } catch (error) {
-      console.log(error);
-    } 
+      failureCallback(error);
+    }
   }
 
   async refreshLogin(refreshToken) {
     const result = await refresh(this.spotifyAuthConfig, {
-      refreshToken: refreshToken,
+      refreshToken,
     });
     return result;
   }
-
 }
 
 const authHandler = new AuthenticationHandler();

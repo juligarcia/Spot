@@ -37,6 +37,16 @@ export const reducer = (state = initialState, action) => {
           trackFeatures: action.payload,
         },
       };
+    case 'SET_LOADING':
+      return {
+        ...state,
+        [`${action.payload}Loading`]: true,
+      };
+    case 'CLEAR_LOADING':
+      return {
+        ...state,
+        [`${action.payload}Loading`]: false,
+      };
     default:
       return state;
   }

@@ -1,75 +1,76 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, ScrollView, ActivityIndicator } from 'react-native';
 import { connect } from 'react-redux';
 import Collapsible from 'react-native-collapsible';
 import Icon from 'react-native-vector-icons/Feather';
 
-import SpotifyApi from '../../../../utils/SpotifyApi';
-import * as userActions from '../../../../redux/user/actions';
-import { scaleSize } from '../../../../utils/dimensions';
 import Button from '../../../Button';
 
 import Artist from './components/Artist';
 import ArtistInfo from './components/ArtistInfo';
-import { getArtistsDetails } from './utils';
+import { getTrackArtists } from './utils';
+import createStyles from './styles';
 
-const ArtistList = ({ artists, dispatch, trackId, artistsDetails }) => {
+const ArtistList = ({
+  artists,
+  dispatch,
+  trackId,
+  artistsDetails,
+  currentArtistsLoading,
+  topTracksLoading,
+}) => {
   const [selectedId, setSelectedId] = useState();
   const [showArtist, setShowArtist] = useState(false);
 
+  const { styles, colors } = createStyles();
+
   useEffect(() => {
-    SpotifyApi.getArtists(artists.map((artist) => artist.id)).then((result) =>
-      dispatch(userActions.setCurrentPlayingTrackArtists(getArtistsDetails(result))),
-    );
+    getTrackArtists(dispatch, artists);
   }, [trackId]);
 
   return (
     <View style={styles.container}>
-      <Button
-        textStyles={styles.showArtistsButtonText}
-        containerStyles={styles.showArtistsButton}
-        text={showArtist ? 'Hide artists' : 'Show artists'}
-        Icon={
-          showArtist ? (
-            <Icon name="chevron-down" color="white" size={18} />
-          ) : (
-            <Icon name="chevron-up" color="white" size={18} />
-          )
-        }
-        onPress={() => setShowArtist(!showArtist)}
-      />
-      <ArtistInfo artistId={selectedId} setSelectedId={setSelectedId} />
-      <Collapsible collapsed={!showArtist}>
-        <ScrollView>
-          {artistsDetails.map((artist, index) => (
-            <Artist artist={artist} setSelectedId={setSelectedId} withMargin={!!index} />
-          ))}
-        </ScrollView>
-      </Collapsible>
+      {currentArtistsLoading ? (
+        <ActivityIndicator size="small" color={colors.foreground3} />
+      ) : (
+        <>
+          <Button
+            textStyles={styles.showArtistsButtonText}
+            containerStyles={styles.showArtistsButton}
+            text={showArtist ? 'Hide artists' : 'Show artists'}
+            Icon={
+              showArtist ? (
+                <Icon name="chevron-down" color={colors.textPrimary} size={18} />
+              ) : (
+                <Icon name="chevron-up" color={colors.textPrimary} size={18} />
+              )
+            }
+            onPress={() => setShowArtist(!showArtist)}
+          />
+          <ArtistInfo artistId={selectedId} setSelectedId={setSelectedId} />
+          <Collapsible collapsed={!showArtist}>
+            <ScrollView contentContainerStyle={styles.list}>
+              {artistsDetails.map((artist, index) => (
+                <Artist
+                  key={index}
+                  artist={artist}
+                  setSelectedId={setSelectedId}
+                  withMargin={!!index}
+                  loading={selectedId === artist.id && topTracksLoading}
+                />
+              ))}
+            </ScrollView>
+          </Collapsible>
+        </>
+      )}
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  showArtistsButton: {
-    backgroundColor: '#3B3B3B',
-    borderRadius: 5,
-    marginBottom: scaleSize(2),
-  },
-  showArtistsButtonText: {
-    fontSize: 16,
-  },
-  container: {
-    backgroundColor: '#2E2E2E',
-    borderRadius: 5,
-    width: scaleSize(90),
-    padding: scaleSize(2),
-    maxHeight: scaleSize(50, true),
-  },
-});
-
 const mapStateToProps = (store) => ({
   artistsDetails: store?.user?.currentPlayingTrack?.artistsDetails,
+  currentArtistsLoading: store?.user?.currentArtistsLoading,
+  topTracksLoading: store?.user?.topTracksLoading,
 });
 
 export default connect(mapStateToProps)(ArtistList);

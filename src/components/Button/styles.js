@@ -1,23 +1,29 @@
 import { StyleSheet } from 'react-native';
 
-const defaultStyles = StyleSheet.create({
-  container: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 100,
-    backgroundColor: '#1EB954',
-    paddingBottom: '2%',
-    paddingTop: '2%',
-    paddingLeft: '5%',
-    paddingRight: '5%',
-  },
-  label: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    width: '100%',
-    textAlign: 'center',
-  },
-});
+import { useTheme } from '../../theme/ThemeProvider';
 
-export default defaultStyles;
+const createStyles = () => {
+  const { colors } = useTheme();
+  const { spotifyColors } = colors;
+
+  const styles = StyleSheet.create({
+    container: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 100,
+      backgroundColor: spotifyColors.accentColor,
+      paddingBottom: '2%',
+      paddingTop: '2%',
+      paddingLeft: '5%',
+      paddingRight: '5%',
+    },
+    label: {
+      width: '100%',
+      color: spotifyColors.textColor,
+    },
+  });
+
+  return { styles };
+};
+
+export default createStyles;

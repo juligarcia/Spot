@@ -1,28 +1,35 @@
 import { StyleSheet } from 'react-native';
 
-// import { useTheme } from '../../../theme/ThemeProvider';
+import { useTheme } from '../../../theme/ThemeProvider';
 
 const createStyles = () => {
-  // const { colors } = useTheme();
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      backgroundColor: colors.background,
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    button: {
+      width: '60%',
+    },
+    buttonLabel: {
+      width: '100%',
+      color: colors.spotifyColors.textColor,
+    },
+    title: {
+      fontSize: 120,
+    },
+    titleContainer: {
+      marginBottom: '15%',
+    },
+  });
 
   return {
-    styles: StyleSheet.create({
-      container: {
-        backgroundColor: '#000',
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      button: {
-        width: '40%',
-      },
-      title: {
-        fontSize: 120,
-      },
-      titleContainer: {
-        marginBottom: '15%',
-      },
-    }),
+    colors,
+    styles,
   };
 };
 

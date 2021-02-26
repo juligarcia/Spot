@@ -1,36 +1,22 @@
 import React from 'react';
-import {
-  View, StyleSheet
-} from 'react-native';
-import { getArtists } from './utils';
+import { View } from 'react-native';
+
 import Label from '../../../Label';
 
-const Artists = ({ artists }) => (
-  <View style={styles.container}>
-    {getArtists(artists).map((artist, index) => (
-      <Label key={index} textStyles={index ? styles.featArtist : styles.mainArtist}>
-        {(index === artist.length - 1) ? artist : `${artist}, `}
-      </Label>
-    ))}
-  </View>
-);
+import { getArtists } from './utils';
+import createStyles from './styles';
 
-const styles = StyleSheet.create({
-  container: {
-    justifyContent: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-    flexWrap: 'wrap'
-  },
-  mainArtist: {
-    color: '#1EB954',
-    fontSize: 15
-  },
-  featArtist: {
-    color: '#D7D7D7',
-    fontSize: 12
-  }
-});
+const Artists = ({ artists }) => {
+  const { styles } = createStyles();
+  return (
+    <View style={styles.container}>
+      {getArtists(artists).map((artist, index) => (
+        <Label key={index} textStyles={index ? styles.featArtist : styles.mainArtist}>
+          {index === artists.length - 1 ? artist : `${artist},`}
+        </Label>
+      ))}
+    </View>
+  );
+};
 
 export default Artists;
