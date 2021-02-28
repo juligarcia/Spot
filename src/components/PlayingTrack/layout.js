@@ -6,6 +6,7 @@ import Label from '../Label';
 
 import Artists from './components/Artists';
 import Album from './components/Album';
+import SkipButtons from './components/SkipButtons';
 import { getAlbumData } from './utils';
 import createStyles from './styles';
 
@@ -27,6 +28,7 @@ const PlayingTrack = ({ track, userLoading, loading }) => {
               width={200}
               color={colors.spotifyColors.accentColor}
             />
+            <SkipButtons />
           </>
         )}
       </View>

@@ -1,10 +1,11 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { Appearance, AppearanceProvider } from 'react-native-appearance';
 import { node } from 'prop-types';
 
 import { lightColors, darkColors } from './colorThemes';
 
-export const ThemeContext = createContext({
+const ThemeContext = createContext({
   isDark: false,
   colors: lightColors,
   setScheme: () => {},
@@ -43,3 +44,12 @@ ThemeProvider.propTypes = {
 };
 
 export const useTheme = () => useContext(ThemeContext);
+
+export const withTheme = (Component) => {
+  const ThemedComponent = (props) => (
+    <ThemeContext.Consumer>{(theme) => <Component {...props} theme={theme} />}</ThemeContext.Consumer>
+  );
+  ThemedComponent.displayName = Component.displayName || 'Themed';
+
+  return ThemedComponent;
+};
